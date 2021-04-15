@@ -1,6 +1,6 @@
 package com.example.task.service;
 
-import com.example.task.exception.RecordNotFoundException;
+import com.example.task.exception.ObjectNotFoundException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,10 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public class CustomService<MODEL, ID, REPO extends JpaRepository<MODEL, ID>> {
+public abstract class AbstractService<MODEL, ID, REPO extends JpaRepository<MODEL, ID>> {
     protected REPO repository;
 
-    public CustomService(REPO repository) {
+    public AbstractService(REPO repository) {
         this.repository = repository;
     }
 
@@ -26,19 +26,19 @@ public class CustomService<MODEL, ID, REPO extends JpaRepository<MODEL, ID>> {
     //Record cannot be found 404
     public MODEL get(ID id) {
         return optional(id)
-                .orElseThrow(() -> new RecordNotFoundException("Data with id(" + id + ") not found."));
+                .orElseThrow(() -> new ObjectNotFoundException("Resource with id(" + id + ") cannot be found."));
     }
 
     //Record cannot be found 404
     public MODEL get(Example<MODEL> example) {
         return list(example).stream().findFirst()
-                .orElseThrow(() -> new RecordNotFoundException("Your search returned no results."));
+                .orElseThrow(() -> new ObjectNotFoundException("Your search returned no results."));
     }
 
     //Record cannot be found 404
     public MODEL first(Example<MODEL> example) {
         return repository.findAll(example, PageRequest.of(0, 1)).stream().findFirst()
-                .orElseThrow(() -> new RecordNotFoundException("Your search returned no results."));
+                .orElseThrow(() -> new ObjectNotFoundException("Your search returned no results."));
     }
 
     public Optional<MODEL> optional(ID id) {
